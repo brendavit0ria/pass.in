@@ -9,13 +9,13 @@ let participants = [
       name: "Diego Fernandes",
       email: "diego@gmail.com",
       registrationDate: new Date(2024, 1, 2, 19, 20),
-      dateCheckIn: new Date(2024, 1, 5, 22, 0)
+      dateCheckIn: null
     },
     {
       name: "Ana Silva",
       email: "ana@gmail.com",
       registrationDate: new Date(2024, 0, 15, 14, 30),
-      dateCheckIn: new Date(2024, 0, 18, 9, 0)
+      dateCheckIn: null
     },
     {
       name: "Carlos Souza",
@@ -33,7 +33,7 @@ let participants = [
       name: "Ricardo Oliveira",
       email: "ricardo@gmail.com",
       registrationDate: new Date(2024, 6, 20, 12, 0),
-      dateCheckIn: new Date(2024, 6, 23, 10, 30)
+      dateCheckIn: null
     },
     {
       name: "Fernanda Costa",
@@ -45,7 +45,7 @@ let participants = [
       name: "Paulo Santos",
       email: "paulo@gmail.com",
       registrationDate: new Date(2024, 9, 12, 11, 30),
-      dateCheckIn: new Date(2024, 9, 15, 9, 45)
+      dateCheckIn: null
     },
     {
       name: "Mariana Lima",
@@ -63,7 +63,13 @@ let participants = [
 
 const createNewParticipant = (participant) => {
   const registrationDate = dayjs(Date.now()).to(participant.registrationDate);
-  const dateCheckIn = dayjs(Date.now()).to(participant.dateCheckIn);
+  let dateCheckIn = dayjs(Date.now()).to(participant.dateCheckIn);
+
+  if(participant.dateCheckIn == null) {
+    dateCheckIn = `
+    <button data-email="${participant.email}" onclick="toCheckIn(event)">Confimar check-in</button>
+    `
+  }
 
   return `   
 <tr>
@@ -90,3 +96,41 @@ const updateList = (participants) => {
 };
 
 updateList(participants);
+
+const addParticipants = (event) => {
+  event.preventDefault()
+
+  const formData = new FormData(event.target)
+
+  const participant = {
+    name: formData.get('name'),
+    email: formData.get('email'),
+    registrationDate: new Date(),
+    dateCheckIn: null
+  }
+
+  const participantExists = participants.find((p) => p.email == participant.email)
+
+  if(participantExists) {
+    alert("Email já cadastrado!")
+    return
+  }
+
+  participants = [participant, ...participants]
+  updateList(participants)
+
+  event.target.querySelector('[name="name"]').value = ""
+  event.target.querySelector('[name="email"]').value = ""
+}
+
+const toCheckIn = (event) => {
+  const confirmationMessage = "Tem certeza que deseja fazer o check-in?"
+  if(confirm(confirmationMessage) == false) {
+    return
+  }
+
+  const participant = participants.find((p) => p.email == event.target.dataset.email)
+  participant.dateCheckIn = new Date()
+
+  updateList(participants)
+}
